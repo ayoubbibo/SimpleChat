@@ -67,20 +67,20 @@ public class EchoServer extends AbstractServer
   public void handleMessageFromClient
     (Object msg, ConnectionToClient client)
   {
-    if(!msg.toString().startsWith("#"))
+    if(client.getInfo("id") != null && msg.toString().startsWith("#login"))
     {
-      serverUI.display("Message received: " + msg + " from " + client);
-      this.sendToAllClients(msg);
+      try{
+        client.sendToClient("already connected with the id " + client.getInfo("id"));
+      } catch (IOException e)
+      {
+        serverUI.display(RED + " erro on the log client in handlemessagefromcliet " + e + END);
+      }
     } else
     {
       if(client.getInfo("id") != null)
       {
-        try{
-          client.sendToClient("already connected with the id " + client.getInfo("id"));
-        } catch (IOException e)
-        {
-          serverUI.display(RED + " erro on the log client in handlemessagefromcliet " + e + END);
-        }
+        serverUI.display("Message received: " + msg + " from " + client.getInfo("id"));
+        this.sendToAllClients(msg);
       } else {
         client.setInfo("id",msg.toString().split(" ")[1]);
         serverUI.display((String) client.getInfo("id"));
@@ -127,7 +127,7 @@ public class EchoServer extends AbstractServer
   @Override
   protected void clientConnected(ConnectionToClient client)
   {
-    System.out.println("le client " + client + " vient de se connecter");
+    System.out.println("le client " + client.getInfo("id") + " vient de se connecter");
   }
 
 
@@ -179,9 +179,6 @@ public class EchoServer extends AbstractServer
           {
             serverUI.display(RED + "error from the start of the listen method " + e + END);
           }
-          break;
-        case "#client":
-          server.display("Le client nommé "+clie)
           break;
         default:
           serverUI.display(YELLOW + "this commande is not handled by the server ! " + END);
